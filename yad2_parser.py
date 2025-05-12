@@ -91,7 +91,7 @@ def process_vehicle_data(json_list: List[Dict], listing_type: str, output_file: 
             except KeyError as e:
                 print(f"Skipping item due to missing key: {e}")
                 print (item)
-                exit(-1)
+                # exit(-1)
             except Exception as e:
                 print(f"Error processing item: {e}")
 
