@@ -104,7 +104,7 @@ def process_directory(directory_path: str) -> None:
     
     # Process each HTML file in the directory
     for filename in os.listdir(directory_path):
-        if filename.endswith('.html') and today in filename:
+        if filename.endswith('.html'):
             file_path = os.path.join(directory_path, filename)
             try:
                 with open(file_path, 'r', encoding='utf-8') as file:
