@@ -443,8 +443,9 @@ def create_dashboard(df, port=8050):
             filtered_df['hand'], 
             filtered_df['km'], 
             filtered_df['city'],
-            filtered_df['productionDate'],
-            filtered_df['link']
+            filtered_df['productionDate'].dt.strftime('%Y-%m-%d'),  # ← human-readable string
+            filtered_df['link'],
+            filtered_df['productionYear']
         ))
         
         # UPDATED: Make points clickable to their ad links with improved styling
@@ -458,6 +459,7 @@ def create_dashboard(df, port=8050):
             hovertemplate='<b>%{customdata[0]} %{customdata[1]}</b><br>' +
                           'Price: ₪%{y:,.0f}<br>' +
                           'Production Date: %{customdata[5]}<br>' +
+                          'Year: %{customdata[7]}<br>' +  # ← show production year
                           'Hand: %{customdata[2]}<br>' +
                           'KM: %{customdata[3]:,.0f}<br>' +
                           'City: %{customdata[4]}<br>' +
