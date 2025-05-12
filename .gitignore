@@ -1,2 +1,6 @@
 scraped_vehicles/*
 *.pyc
+
+.DS_Store
+
+.idea/
