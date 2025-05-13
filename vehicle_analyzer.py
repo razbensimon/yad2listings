@@ -101,9 +101,11 @@ def create_dashboard(df, port=8050):
         {'label': '> 25,000 km/year', 'value': '25000-999999'}
     ]
 
-    years = [{'label': 'All Years', 'value': 'all'}] + [
-        {'label': str(y), 'value': y} for y in sorted(df['productionYear'].unique())
-    ]
+    years = sorted(df['productionYear'].unique())
+    year_options = [{'label': str(y), 'value': y} for y in years]
+
+    # Add empty option for the year dropdowns
+    year_options_with_empty = [{'label': 'Any', 'value': 'any'}] + year_options
 
     hands = [{'label': 'All Hands', 'value': 'all'}] + [
         {'label': f'Hand ≤ {h}', 'value': f'0-{h}'} for h in sorted(df['hand'].unique()) if h > 0
@@ -243,12 +245,49 @@ def create_dashboard(df, port=8050):
 
             html.Div([
                 html.Label("Filter by production year:", style=styles['label']),
-                dcc.Dropdown(
-                    id='year-filter',
-                    options=years,
-                    value='all',
-                    clearable=False
-                ),
+                html.Div([
+                    dcc.Dropdown(
+                        id='min-year-filter',
+                        options=year_options_with_empty,
+                        value='any',
+                        placeholder="From",
+                        clearable=False,
+                        style={
+                            'width': '120px',
+                            'display': 'inline-block',
+                            'height': '34px',
+                            'backgroundColor': 'white',
+                            'border': '1px solid rgb(206, 212, 218)',
+                            'borderRadius': '4px',
+                            'fontSize': '14px'
+                        }
+                    ),
+                    html.Span(" - ", style={
+                        'display': 'inline-block',
+                        'margin': '0 8px',
+                        'color': '#495057'
+                    }),
+                    dcc.Dropdown(
+                        id='max-year-filter',
+                        options=year_options_with_empty,
+                        value='any',
+                        placeholder="To",
+                        clearable=False,
+                        style={
+                            'width': '120px',
+                            'display': 'inline-block',
+                            'height': '34px',
+                            'backgroundColor': 'white',
+                            'border': '1px solid rgb(206, 212, 218)',
+                            'borderRadius': '4px',
+                            'fontSize': '14px'
+                        }
+                    )
+                ], style={
+                    'display': 'flex',
+                    'alignItems': 'center',
+                    'marginTop': '5px'
+                })
             ], style=styles['filter']),
 
             # NEW: Filter by price range
@@ -409,12 +448,13 @@ def create_dashboard(df, port=8050):
          Input('model-filter', 'value'),
          Input('apply-submodel-button', 'n_clicks'),
          Input('adtype-filter', 'value'),
-         Input('year-filter', 'value'),
+         Input('min-year-filter', 'value'),
+         Input('max-year-filter', 'value'),
          Input('min-price', 'value'),
          Input('max-price', 'value')],
         [State('submodel-checklist', 'value')]
     )
-    def update_graph(km_range, hand, models, submodel_btn_clicks, adtype, year_filter, min_price, max_price, submodel_list):
+    def update_graph(km_range, hand, models, submodel_btn_clicks, adtype, min_year, max_year, min_price, max_price, submodel_list):
         # Apply filters
         filtered_df = df.copy()
 
@@ -442,8 +482,11 @@ def create_dashboard(df, port=8050):
         if adtype != 'all':
             filtered_df = filtered_df[filtered_df['listingType'] == adtype]
 
-        if year_filter != 'all':
-            filtered_df = filtered_df[filtered_df['productionYear'] == int(year_filter)]
+        # Filter by year range
+        if min_year != 'any':
+            filtered_df = filtered_df[filtered_df['productionYear'] >= min_year]
+        if max_year != 'any':
+            filtered_df = filtered_df[filtered_df['productionYear'] <= max_year]
 
         # Filter by price range
         if min_price is not None:
