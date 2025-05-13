@@ -377,9 +377,29 @@ def create_dashboard(df, port=8050):
             html.Div([
                 html.Label("Filter by sub-model:", style=styles['label']),
                 html.Div([
+                    dcc.Input(
+                        id='submodel-search',
+                        type='text',
+                        placeholder="Type words to filter (space between words)",
+                        style={
+                            'width': '100%',
+                            'height': '34px',
+                            'backgroundColor': 'white',
+                            'border': '1px solid rgb(206, 212, 218)',
+                            'borderRadius': '4px',
+                            'fontSize': '13px',
+                            'padding': '6px 8px',
+                            'boxSizing': 'border-box'
+                        }
+                    ),
+                ], style={
+                    'marginTop': '5px',
+                    'marginBottom': '10px'
+                }),
+                html.Div([
                     dcc.Checklist(
                         id='submodel-checklist',
-                        options=[],  # Will be populated dynamically based on model selection
+                        options=[],
                         value=[],
                         labelStyle={'display': 'block', 'margin-bottom': '8px', 'cursor': 'pointer'},
                         style={'max-height': '200px', 'overflow-y': 'auto', 'padding': '10px', 'background-color': '#f5f9ff', 'border-radius': '5px'}
@@ -396,7 +416,7 @@ def create_dashboard(df, port=8050):
                         id='clear-submodel-button',
                         style=styles['clear_button']
                     ),
-                ], style={'display': 'flex', 'gap': '10px'}),
+                ], style={'display': 'flex', 'gap': '10px'})
             ], style={'width': '23%', 'min-width': '200px', 'padding': '10px', 'flex-grow': '1'}),
 
         ], style=styles['filter_container']),
@@ -440,43 +460,44 @@ def create_dashboard(df, port=8050):
         prevent_initial_call=True
     )
 
-    # Callback to update submodel options based on selected models
+    # Update submodel options based on search
     @app.callback(
         Output('submodel-checklist', 'options'),
-        Input('model-filter', 'value'),
+        [Input('model-filter', 'value'),
+         Input('submodel-search', 'value')]
     )
-    def update_submodel_options(selected_models):
+    def update_submodel_options(selected_models, search_text):
         if not selected_models or len(selected_models) == 0:
             # If no models selected, show all submodels
-            # For each submodel, add the model name in brackets
-            submodel_options = []
-            for sm in sorted(df['subModel'].unique()):
-                # Find models for this submodel
-                models_for_submodel = df[df['subModel'] == sm]['model'].unique()
-                if len(models_for_submodel) == 1:
-                    # If there's only one model for this submodel
-                    label = f"[{models_for_submodel[0]}] {sm}"
-                else:
-                    # If there are multiple models, show first one with "+"
-                    label = f"[{models_for_submodel[0]}+] {sm}"
-                submodel_options.append({'label': label, 'value': sm})
+            filtered_df = df
         else:
             # Filter submodels based on selected models
             filtered_df = df[df['model'].isin(selected_models)]
-            submodel_options = []
-            for sm in sorted(filtered_df['subModel'].unique()):
-                # Find models for this submodel (limited to selected models)
-                models_for_submodel = filtered_df[filtered_df['subModel'] == sm]['model'].unique()
-                if len(models_for_submodel) == 1:
-                    # If there's only one model for this submodel
-                    label = f" {sm} [{models_for_submodel[0]}]"
-                else:
-                    # Join all models (should be less since we're filtering)
-                    models_str = '+'.join(models_for_submodel)
-                    label = f" {sm} [{models_str}]"
-                submodel_options.append({'label': label, 'value': sm})
 
-        return list(sorted(submodel_options, key=lambda x: x['label']))
+        # Get unique submodels
+        submodel_options = []
+        for sm in sorted(filtered_df['subModel'].unique()):
+            # Find models for this submodel (limited to selected models)
+            models_for_submodel = filtered_df[filtered_df['subModel'] == sm]['model'].unique()
+            if len(models_for_submodel) == 1:
+                label = f"{sm} [{models_for_submodel[0]}]"
+            else:
+                models_str = '+'.join(models_for_submodel)
+                label = f"{sm} [{models_str}]"
+            submodel_options.append({'label': label, 'value': sm})
+
+        # Filter based on search text if any
+        if search_text and len(search_text.strip()) > 0:
+            search_tags = [tag.strip().lower() for tag in search_text.split() if tag.strip()]
+            if search_tags:
+                filtered_options = []
+                for opt in submodel_options:
+                    # Check if all search tags are in the label (case insensitive)
+                    if all(tag in opt['label'].lower() for tag in search_tags):
+                        filtered_options.append(opt)
+                submodel_options = filtered_options
+
+        return sorted(submodel_options, key=lambda x: x['label'])
 
     # Callback to clear submodel selection
     @app.callback(
