@@ -225,22 +225,30 @@ def create_dashboard(df, port=8050):
         html.Div([
             html.Div([
                 html.Label("Filter by km/year:", style=styles['label']),
-                dcc.Dropdown(
-                    id='km-filter',
-                    options=km_ranges,
-                    value='all',
-                    clearable=False
-                ),
+                html.Div([
+                    dcc.Dropdown(
+                        id='km-filter',
+                        options=km_ranges,
+                        value='all',
+                        clearable=False
+                    ),
+                ], style={
+                    'marginTop': '5px'
+                })
             ], style=styles['filter']),
 
             html.Div([
                 html.Label("Filter by owner hand:", style=styles['label']),
-                dcc.Dropdown(
-                    id='hand-filter',
-                    options=hands,
-                    value='all',
-                    clearable=False
-                ),
+                html.Div([
+                    dcc.Dropdown(
+                        id='hand-filter',
+                        options=hands,
+                        value='all',
+                        clearable=False
+                    ),
+                ], style={
+                    'marginTop': '5px'
+                })
             ], style=styles['filter']),
 
             html.Div([
@@ -250,37 +258,37 @@ def create_dashboard(df, port=8050):
                         id='min-year-filter',
                         options=year_options_with_empty,
                         value='any',
-                        placeholder="From",
+                        placeholder="Any",
                         clearable=False,
                         style={
-                            'width': '120px',
-                            'display': 'inline-block',
+                            'width': '80px',
+                            'minHeight': '34px',
                             'height': '34px',
                             'backgroundColor': 'white',
                             'border': '1px solid rgb(206, 212, 218)',
                             'borderRadius': '4px',
-                            'fontSize': '14px'
+                            'fontSize': '13px'
                         }
                     ),
                     html.Span(" - ", style={
                         'display': 'inline-block',
-                        'margin': '0 8px',
+                        'margin': '0 4px',
                         'color': '#495057'
                     }),
                     dcc.Dropdown(
                         id='max-year-filter',
                         options=year_options_with_empty,
                         value='any',
-                        placeholder="To",
+                        placeholder="Any",
                         clearable=False,
                         style={
-                            'width': '120px',
-                            'display': 'inline-block',
+                            'width': '80px',
+                            'minHeight': '34px',
                             'height': '34px',
                             'backgroundColor': 'white',
                             'border': '1px solid rgb(206, 212, 218)',
                             'borderRadius': '4px',
-                            'fontSize': '14px'
+                            'fontSize': '13px'
                         }
                     )
                 ], style={
@@ -290,41 +298,80 @@ def create_dashboard(df, port=8050):
                 })
             ], style=styles['filter']),
 
-            # NEW: Filter by price range
+            # Price range
             html.Div([
                 html.Label("Price range (₪):", style=styles['label']),
                 html.Div([
                     dcc.Input(
-                        id='min-price', type='number', placeholder='Min',
-                        style={'width': '45%', 'margin-right': '5%'}
+                        id='min-price',
+                        type='number',
+                        placeholder='Min',
+                        style={
+                            'width': '80px',
+                            'height': '34px',
+                            'backgroundColor': 'white',
+                            'border': '1px solid rgb(206, 212, 218)',
+                            'borderRadius': '4px',
+                            'fontSize': '13px',
+                            'padding': '6px 8px',
+                            'boxSizing': 'border-box'
+                        }
                     ),
+                    html.Span(" - ", style={
+                        'display': 'inline-block',
+                        'margin': '0 4px',
+                        'color': '#495057'
+                    }),
                     dcc.Input(
-                        id='max-price', type='number', placeholder='Max',
-                        style={'width': '45%'}
+                        id='max-price',
+                        type='number',
+                        placeholder='Max',
+                        style={
+                            'width': '80px',
+                            'height': '34px',
+                            'backgroundColor': 'white',
+                            'border': '1px solid rgb(206, 212, 218)',
+                            'borderRadius': '4px',
+                            'fontSize': '13px',
+                            'padding': '6px 8px',
+                            'boxSizing': 'border-box'
+                        }
                     )
-                ])
+                ], style={
+                    'display': 'flex',
+                    'alignItems': 'center',
+                    'marginTop': '5px'
+                })
             ], style=styles['filter']),
 
             # New model multi-select dropdown
             html.Div([
                 html.Label("Filter by model:", style=styles['label']),
-                dcc.Dropdown(
-                    id='model-filter',
-                    options=models,
-                    value=[],
-                    multi=True,
-                    placeholder="Select model(s)"
-                ),
+                html.Div([
+                    dcc.Dropdown(
+                        id='model-filter',
+                        options=models,
+                        value=[],
+                        multi=True,
+                        placeholder="Select model(s)"
+                    ),
+                ], style={
+                    'marginTop': '5px'
+                })
             ], style=styles['filter']),
 
             html.Div([
                 html.Label("Filter by listing type:", style=styles['label']),
-                dcc.Dropdown(
-                    id='adtype-filter',
-                    options=ad_types,
-                    value='all',
-                    clearable=False
-                ),
+                html.Div([
+                    dcc.Dropdown(
+                        id='adtype-filter',
+                        options=ad_types,
+                        value='all',
+                        clearable=False
+                    ),
+                ], style={
+                    'marginTop': '5px'
+                })
             ], style=styles['filter']),
 
             html.Div([
