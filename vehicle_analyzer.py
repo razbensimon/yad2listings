@@ -101,10 +101,10 @@ def create_dashboard(df, port=8050):
         {'label': '> 25,000 km/year', 'value': '25000-999999'}
     ]
 
-    years = sorted(df['productionYear'].unique())
+    years = sorted(df['productionYear'].unique(), reverse=True)
     year_options = [{'label': str(y), 'value': y} for y in years]
 
-    # Add empty option for the year dropdowns
+    # Add empty option for the year dropdowns at the beginning
     year_options_with_empty = [{'label': 'Any', 'value': 'any'}] + year_options
 
     hands = [{'label': 'All Hands', 'value': 'all'}] + [
