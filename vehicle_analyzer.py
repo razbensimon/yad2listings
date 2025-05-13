@@ -456,14 +456,10 @@ def create_dashboard(df, port=8050):
         newest_date = filtered_df['productionDate'].max()
         filtered_df['days_since_newest'] = (newest_date - filtered_df['productionDate']).dt.days
 
-        # Calculate actual dates instead of days since newest
-        today = pd.Timestamp.today().normalize()  # Get today's date (without time)
-        filtered_df['display_date'] = today - pd.to_timedelta(filtered_df['days_since_newest'], unit='D')
-
-        # Create scatter plot with actual dates on x-axis
+        # Create scatter plot with actual production dates on x-axis
         fig = px.scatter(
             filtered_df,
-            x='display_date',
+            x='productionDate',  # Changed from display_date to productionDate
             y='price',
             color='km_per_year',
             # Use fixed size instead of varying by km_per_year
@@ -471,7 +467,7 @@ def create_dashboard(df, port=8050):
             color_continuous_scale='viridis',  # Smooth color gradient
             range_color=[0, filtered_df['km_per_year'].quantile(0.95)],  # Cap color scale for better differentiation
             hover_data=['model', 'subModel', 'hand', 'km', 'city', 'productionDate', 'link'],
-            labels={'display_date': 'Date',
+            labels={'productionDate': 'Production Date',
                    'price': 'Price (₪)',
                    'km_per_year': 'Kilometers per Year'},
             title=f'Vehicle Prices by Age ({len(filtered_df)} vehicles)'
@@ -629,7 +625,7 @@ def create_dashboard(df, port=8050):
 
                     # Add the exponential trendline with higher visibility
                     fig.add_trace(go.Scatter(
-                        x=today - pd.to_timedelta(curve_days, unit='D'),  # Convert to actual dates
+                        x=curve_dates,  # Use actual production dates
                         y=y_curve,
                         mode='lines',
                         name='Exponential Trend',
@@ -663,7 +659,7 @@ def create_dashboard(df, port=8050):
 
                             # Add the exponential trendline
                             fig.add_trace(go.Scatter(
-                                x=today - pd.to_timedelta(x_curve, unit='D'),  # Convert to actual dates
+                                x=curve_dates,  # Use actual production dates
                                 y=y_curve,
                                 mode='lines',
                                 name='Exponential Trend (Simplified)',
@@ -678,7 +674,7 @@ def create_dashboard(df, port=8050):
                             x_curve = np.linspace(0, x.max(), 200)
 
                             fig.add_trace(go.Scatter(
-                                x=today - pd.to_timedelta(x_curve, unit='D'),  # Convert to actual dates
+                                x=curve_dates,  # Use actual production dates
                                 y=p(x_curve),
                                 mode='lines',
                                 name='Linear Trend (Fallback)',
@@ -695,7 +691,7 @@ def create_dashboard(df, port=8050):
                             x_curve = np.linspace(0, x.max(), 200)
 
                             fig.add_trace(go.Scatter(
-                                x=today - pd.to_timedelta(x_curve, unit='D'),  # Convert to actual dates
+                                x=curve_dates,  # Use actual production dates
                                 y=p(x_curve),
                                 mode='lines',
                                 name='Linear Trend (Fallback)',
